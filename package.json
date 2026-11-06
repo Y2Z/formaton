@@ -1,0 +1,37 @@
+{
+  "name": "valex",
+  "version": "0.2.0-dev",
+  "description": "Placeholders and typing assistance derived from the HTML pattern attribute",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "tsc -p . && node --test \"test/*.test.js\"",
+    "prepublishOnly": "npm test"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.0"
+  },
+  "keywords": [
+    "pattern",
+    "regex",
+    "regexp",
+    "input",
+    "mask",
+    "placeholder",
+    "form",
+    "automaton"
+  ],
+  "license": "MIT"
+}
