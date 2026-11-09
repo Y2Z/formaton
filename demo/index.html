@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>valex demo</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+  /* Fields on the left, events on the right; stacked on narrow screens. */
+  .layout { display: grid; gap: 2rem; }
+  .events h2 { font-size: 1rem; margin: 0 0 .5rem; display: flex; justify-content: space-between; align-items: center; }
+  .events button { font: inherit; font-size: 13px; padding: .1rem .6rem; }
+  @media (min-width: 60rem) {
+    body { max-width: 76rem; }
+    .layout { grid-template-columns: minmax(0, 36rem) minmax(0, 1fr); align-items: start; }
+    .events { position: sticky; top: 1rem; }
+    .events pre { height: calc(100vh - 5rem); margin: 0; }
+  }
+  label { display: grid; grid-template-columns: 13rem 1fr; gap: 1rem; align-items: center; margin: .5rem 0; }
+  label .name { line-height: 1.25; }
+  label small { display: block; color: #777; font-size: 12px; font-family: ui-monospace, monospace; overflow-wrap: anywhere; }
+  fieldset { border: 0; border-top: 1px solid #ddd; margin: 1.25rem 0 0; padding: .5rem 0 0; }
+  legend { font-weight: 600; padding-right: .5rem; }
+  input { font: inherit; font-family: ui-monospace, Menlo, Consolas, monospace; padding: .35rem .5rem; border: 1px solid #999; border-radius: 4px; width: 100%; min-width: 0; box-sizing: border-box; }
+  @media (max-width: 30rem) { label { grid-template-columns: 1fr; gap: .2rem; } }
+  input.reject { animation: shake .3s; border-color: #c00; }
+  input.ok { border-color: #080; background: #f3fff3; }
+  input.invalid { border-color: #c00; background: #fff5f5; }
+  @keyframes shake { 25% { translate: -3px } 75% { translate: 3px } }
+  pre { background: #f4f4f4; padding: .75rem; min-height: 6rem; max-height: 50vh; font-size: 13px; overflow: auto; margin: 0; white-space: pre-wrap; }
+  @media (min-width: 60rem) { pre { max-height: none; } }
+  code { font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>valex</h1>
+<p>Every field below is plain HTML with a <code>pattern</code> attribute (or a type).
+Fields turn green once valid, and move focus on by themselves once nothing more can be typed. Under each name is something to type:
+digits only, lowercase, without separators, to see what valex adds and fixes.</p>
+<main class="layout">
+<form onsubmit="return false">
+  <fieldset>
+    <legend>Contact</legend>
+    <label><span class="name">US phone<small>try 2125551234</small></span><input pattern="\+1 \([2-9]\d{2}\) \d{3}-\d{4}" inputmode="tel"></label>
+    <label><span class="name">International phone (E.164)<small>try 442071838750</small></span><input pattern="\+[1-9]\d{6,14}" inputmode="tel"></label>
+    <label><span class="name">Email<small>try me@example.com</small></span><input type="email"></label>
+    <label><span class="name">Username<small>try Jane_Doe</small></span><input pattern="[a-z][a-z0-9_]{2,15}"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Address</legend>
+    <label><span class="name">ZIP / ZIP+4<small>try 123456789</small></span><input pattern="\d{5}(-\d{4})?" inputmode="numeric"></label>
+    <label><span class="name">Canadian postal code<small>try k1a0b1</small></span><input pattern="[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z] \d[ABCEGHJ-NPRSTV-Z]\d"></label>
+    <label><span class="name">UK postcode<small>try sw1a1aa</small></span><input pattern="[A-Z]{1,2}\d[A-Z\d]? \d[A-Z]{2}"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Payment</legend>
+    <label><span class="name">Card (Visa, Mastercard, Amex)<small>try 378282246310005</small></span><input pattern="4\d{3}( \d{4}){3}|5[1-5]\d{2}( \d{4}){3}|3[47]\d{2} \d{6} \d{5}" inputmode="numeric"></label>
+    <label><span class="name">Expiry MM/YY<small>try 1229</small></span><input pattern="(0[1-9]|1[0-2])\/\d{2}" inputmode="numeric"></label>
+    <label><span class="name">CVV<small>try 123</small></span><input pattern="\d{3,4}" inputmode="numeric"></label>
+    <label><span class="name">IBAN (Germany)<small>try 89370400440532013000</small></span><input pattern="DE\d{2} \d{4} \d{4} \d{4} \d{4} \d{2}"></label>
+    <label><span class="name">Amount<small>try 1234.50</small></span><input pattern="\d{1,7}(\.\d{2})?" inputmode="decimal"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Dates and times</legend>
+    <label><span class="name">Date, ISO<small>try 20241231</small></span><input pattern="[12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])" inputmode="numeric"></label>
+    <label><span class="name">Date, DD/MM/YYYY<small>try 31122024</small></span><input pattern="(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/(19|20)\d{2}" inputmode="numeric"></label>
+    <label><span class="name">Time, 24h<small>try 2359</small></span><input pattern="([01]\d|2[0-3]):[0-5]\d" inputmode="numeric"></label>
+    <label><span class="name">Time, 12h<small>try 930pm</small></span><input pattern="(0?[1-9]|1[0-2]):[0-5]\d ?[AP]M"></label>
+    <label><span class="name">Month, written<small>try September 1999</small></span><input pattern="(January|February|March|April|May|June|July|August|September|October|November|December) (19|20)\d{2}"></label>
+    <label><span class="name">Date (native)</span><input type="date" min="1900-01-01" max="2099-12-31"></label>
+    <label><span class="name">Time (native)</span><input type="time"></label>
+    <label><span class="name">Month (native)</span><input type="month"></label>
+    <label><span class="name">Week (native)</span><input type="week"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Codes and IDs</legend>
+    <label><span class="name">Product key<small>try abcde12345fghij67890klmno</small></span><input pattern="[A-Z0-9]{5}(-[A-Z0-9]{5}){4}"></label>
+    <label><span class="name">US SSN<small>try 123456789</small></span><input pattern="\d{3}-\d{2}-\d{4}" inputmode="numeric"></label>
+    <label><span class="name">VIN<small>try 1hgcm82633a004352</small></span><input pattern="[A-HJ-NPR-Z0-9]{17}"></label>
+    <label><span class="name">Hex color<small>try FF8800</small></span><input pattern="#[0-9a-f]{6}"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Network</legend>
+    <label><span class="name">IPv4 address<small>try 192.168.0.1</small></span><input pattern="((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)" inputmode="decimal"></label>
+    <label><span class="name">MAC address<small>try 001a2b3c4d5e</small></span><input pattern="[0-9A-F]{2}(:[0-9A-F]{2}){5}"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Crypto <small style="font-weight:normal;color:#777">(usually pasted, so no prefix on focus: <code>data-valex-prefix="false"</code>)</small></legend>
+    <label><span class="name">Ethereum address<small>try de0b295669a9fd93d5f28d9ec85e40f4cb697bae</small></span><input pattern="0x[0-9a-fA-F]{40}" data-valex-prefix="false"></label>
+    <label><span class="name">Bitcoin address (bech32)<small>try qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq</small></span><input pattern="bc1[ac-hj-np-z02-9]{11,71}" data-valex-prefix="false"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Numbers</legend>
+    <label><span class="name">Month 1–12<small>try 12</small></span><input type="number" min="1" max="12"></label>
+    <label><span class="name">Age 18–120<small>try 25</small></span><input type="number" min="18" max="120"></label>
+    <label><span class="name">Percent 0–100<small>try 100</small></span><input type="number" min="0" max="100"></label>
+  </fieldset>
+  <fieldset>
+    <legend>No pattern</legend>
+    <label><span class="name">Anything</span><input></label>
+  </fieldset>
+</form>
+<section class="events">
+  <h2>Events <button type="button" id="clear">Clear</button></h2>
+  <pre id="log"></pre>
+</section>
+</main>
+<script type="module">
+  import { attachAll } from '../dist/index.js';
+  const logEl = document.getElementById('log');
+  document.getElementById('clear').addEventListener('click', () => (logEl.textContent = ''));
+  // Newest first; each line names its field.
+  const name = (b) => b.element.closest('label')?.querySelector('.name')?.firstChild.textContent.trim() ?? b.element.id;
+  const log = (b, line) => (logEl.textContent = `${name(b).padEnd(30)} ${line}\n` + logEl.textContent);
+  const bindings = attachAll(document, {
+    autoAdvance: true,
+    onComplete(value, b) {
+      // Valid, but more may follow (ZIP+4, a 4-digit CVV): green, no jump.
+      if (b.valex?.allowedNext(value)?.isEmpty === false) log(b, `complete ${JSON.stringify(value)}  (may grow)`);
+    },
+    onFilled(value, b) {
+      log(b, `filled   ${JSON.stringify(value)}  raw ${JSON.stringify(b.rawValue)}`);
+    },
+    onReject(text, b) {
+      // Restart the shake if it is already running.
+      b.element.classList.remove('reject');
+      void b.element.offsetWidth;
+      b.element.classList.add('reject');
+      log(b, `rejected ${JSON.stringify(text)}`);
+    },
+  });
+  for (const b of bindings) {
+    // The red border lasts as long as the shake.
+    b.element.addEventListener('animationend', () => b.element.classList.remove('reject'));
+    // Green while the value is valid and complete. valex's own listener runs
+    // first, so b.complete is current. Focus moves on only once b.filled.
+    const update = () => b.element.classList.toggle('ok', b.complete);
+    b.element.addEventListener('input', update);
+    b.element.addEventListener('blur', update);
+    // Red once you leave a field the browser considers invalid: half-typed
+    // values, or an impossible date such as 00/00/0000 (the browser keeps
+    // its value empty and sets validity.badInput).
+    const el = b.element;
+    el.addEventListener('blur', () =>
+      el.classList.toggle('invalid', !el.validity.valid && (el.value !== '' || el.validity.badInput)),
+    );
+    el.addEventListener('input', () => {
+      if (el.validity.valid) el.classList.remove('invalid');
+    });
+  }
+</script>
+</body>
+</html>

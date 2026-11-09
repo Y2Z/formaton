@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>valex test page</title>
+</head>
+<body>
+<form onsubmit="return false">
+  <input id="phone" pattern="\(\d{3}\) \d{3}-\d{4}">
+  <input id="zip" pattern="\d{5}(-\d{4})?">
+  <input id="intl" pattern="\+1 \d{10}">
+  <input id="cd" pattern="[A-Z0-9]{4}-[A-Z0-9]{4}">
+  <input id="email" type="email">
+  <input id="month" type="number" min="1" max="12">
+  <input id="date" type="date">
+  <input id="plain">
+  <input id="time" pattern="([01]\d|2[0-3]):[0-5]\d">
+  <input id="shift" pattern="\(\d{3}\) \d{3}-\d{4}" data-mode="shift">
+  <input id="truncate" pattern="\(\d{3}\) \d{3}-\d{4}" data-mode="truncate">
+  <input id="key" pattern="[A-Z0-9]{5}(-[A-Z0-9]{5}){4}">
+  <input id="ymd" pattern="[12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])">
+  <input id="mon" pattern="(January|February|March|April|May|June|July|August|September|October|November|December) (19|20)\d{2}">
+  <input id="us" pattern="\+1 \([2-9]\d{2}\) \d{3}-\d{4}">
+  <input id="t12" pattern="(0?[1-9]|1[0-2]):[0-5]\d ?[AP]M">
+  <input id="word" pattern="[a-z]+">
+  <input id="pct" type="number" min="0" max="100">
+  <input id="cvv" pattern="\d{3,4}">
+  <input id="anim" pattern="(January|February|March|April|May|June|July|August|September|October|November|December) (19|20)\d{2}" data-animate="30">
+  <input id="anim-us" pattern="\+1 \([2-9]\d{2}\) \d{3}-\d{4}" data-animate="30">
+  <input id="btc" pattern="bc1[ac-hj-np-z02-9]{11,71}" data-valex-prefix="false">
+  <input id="btc-on" pattern="bc1[ac-hj-np-z02-9]{11,71}">
+  <button id="go">Go</button>
+</form>
+<script type="module">
+  import { attach } from '/dist/index.js';
+  window.events = [];
+  window.completes = [];
+  window.bindings = {};
+  for (const el of document.querySelectorAll('input')) {
+    window.bindings[el.id] = attach(el, {
+      autoAdvance: true,
+      editMode: el.dataset.mode,
+      animate: el.dataset.animate ? Number(el.dataset.animate) : false,
+      onFilled: (value) => window.events.push(['filled', el.id, value]),
+      onComplete: (value) => window.completes.push([el.id, value]),
+      onReject: (text) => window.events.push(['reject', el.id, text]),
+    });
+  }
+  window.ready = true;
+</script>
+</body>
+</html>

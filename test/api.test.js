@@ -76,3 +76,39 @@ test('allowedNext() and isPrefix()', () => {
   assert.equal(v.isPrefix('ab'), true);
   assert.equal(v.isPrefix('ad'), false);
 });
+
+test('integerRangePattern() matches exactly lo..hi', async () => {
+  const { integerRangePattern } = await import('../dist/index.js');
+  for (const [lo, hi] of [[0, 0], [0, 9], [1, 12], [0, 59], [7, 7], [5, 123], [10, 99], [100, 999], [1, 1000], [19, 2024], [123, 4567], [0, 99999]]) {
+    const v = compile(integerRangePattern(lo, hi));
+    for (let n = 0; n <= hi + 50; n++) assert.equal(v.test(String(n)), n >= lo && n <= hi, `${lo}..${hi}: ${n}`);
+    assert.ok(!v.test('0' + String(Math.max(lo, 1))), 'no leading zeros');
+  }
+  // With max 12, "1" can grow but "2" cannot: what type=number auto-advance relies on.
+  const month = compile(integerRangePattern(1, 12));
+  assert.equal(month.allowedNext('1').isEmpty, false);
+  assert.equal(month.allowedNext('2').isEmpty, true);
+  assert.throws(() => integerRangePattern(-1, 5), RangeError);
+});
+
+test('fix() reports rejected input', () => {
+  const v = compile(String.raw`\d{3}-\d{2}`);
+  assert.equal(v.fix('12a45').rejected, 'a45');
+  assert.equal(v.fix('12a45', { drop: true }).rejected, 'a');
+  assert.equal(v.fix('12345').rejected, '');
+  assert.equal(v.fix('1234567').rejected, '67');
+});
+
+test('unformat() from an offset', () => {
+  const v = compile(String.raw`\(\d{3}\) \d{3}`);
+  assert.equal(v.unformat('(212) 555', 4), '555');
+  assert.equal(v.unformat('(212) 555', 3), '2555');
+});
+
+test('masks hide forced characters that follow a choice', () => {
+  const dmy = compile(String.raw`(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/(19|20)\d{2}`);
+  assert.equal(dmy.mask(), '__/__/____'); // not "__/__/_9__"
+  assert.equal(compile(String.raw`DE\d{2} \d{4}`).mask(), 'DE__ ____');
+  assert.equal(compile(String.raw`0x[0-9a-f]{4}`).mask(), '0x____');
+  assert.equal(compile(String.raw`\+1 \(\d{3}\)`).mask(), '+1 (___)');
+});

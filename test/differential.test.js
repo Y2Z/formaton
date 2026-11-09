@@ -62,8 +62,16 @@ for (const pattern of PATTERNS) {
     }
     const alphabet = [...new Set([...examples.join(''), ...Array.from(pattern), ...'aZ09 -.,:#@'])];
 
+    const minRaw = v.minValueLength();
+    const maxRaw = v.maxValueLength();
     for (const e of examples) {
       assert.ok(native.test(e), `example ${JSON.stringify(e)} should match`);
+      // unformat() and format() round-trip, up to optional trailing literals.
+      const raw = v.unformat(e);
+      assert.ok(raw.length >= minRaw && raw.length <= maxRaw, `raw length of ${JSON.stringify(e)}`);
+      const back = v.format(raw);
+      assert.ok(back.ok && back.complete && e.startsWith(back.value), `format(${JSON.stringify(raw)}) = ${JSON.stringify(back.value)}, from ${JSON.stringify(e)}`);
+      assert.equal(v.unformat(back.value), raw);
       const cps = Array.from(e);
       for (let k = 0; k <= cps.length; k++) {
         const p = cps.slice(0, k).join('');
@@ -100,7 +108,8 @@ for (const pattern of PATTERNS) {
       assert.equal(v.test(s), native.test(s), `test(${JSON.stringify(s)})`);
       if (v.isPrefix(s)) {
         // Soundness: a viable prefix really completes into a match.
-        const done = v.example({ prefix: s });
+        const done = v.example({ value: s, raw: false });
+        assert.ok(done === null || done.startsWith(v.fix(s).value));
         assert.ok(done !== null && native.test(done), `completion of ${JSON.stringify(s)}: ${JSON.stringify(done)}`);
         const fixed = v.fix(s, { caseFix: false, insertForced: false });
         assert.equal(fixed.value, s);
