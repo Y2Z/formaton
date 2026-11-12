@@ -283,4 +283,4 @@ code with either.
 
 ## License
 
-MIT
+[0BSD](LICENSE): use it for anything, no attribution required.
