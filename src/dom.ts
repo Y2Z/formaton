@@ -1,5 +1,5 @@
 import { integerRangePattern } from './range.js';
-import { compile, ValexSyntaxError, ValexUnsupportedError, type Valex } from './valex.js';
+import { compile, FormatonSyntaxError, FormatonUnsupportedError, type Formaton } from './formaton.js';
 
 export type FieldElement = HTMLInputElement | HTMLTextAreaElement;
 
@@ -17,8 +17,8 @@ export interface AttachOptions {
   maskChar?: string;
   /**
    * Set `maxlength` from the pattern when the element has none. Default
-   * false: valex already enforces the length, and at `maxlength` browsers
-   * swallow keystrokes and truncate pastes before valex can see them.
+   * false: formaton already enforces the length, and at `maxlength` browsers
+   * swallow keystrokes and truncate pastes before formaton can see them.
    */
   maxLength?: boolean;
   /**
@@ -39,7 +39,7 @@ export interface AttachOptions {
    */
   editMode?: 'auto' | 'overwrite' | 'shift' | 'truncate';
   /**
-   * Type out characters valex adds at the end of the value (separators,
+   * Type out characters formaton adds at the end of the value (separators,
    * completed words like "January", a "+1 (" prefix) one by one, very fast,
    * so the user sees them arrive. `true` (default): 15 ms per character, at
    * most 200 ms in all; a number: milliseconds per character; `false`: off.
@@ -67,7 +67,7 @@ export interface AttachOptions {
 export interface Binding {
   readonly element: FieldElement;
   /** The compiled pattern, or null when the field gets no assistance. */
-  readonly valex: Valex | null;
+  readonly formaton: Formaton | null;
   /** What drives the field: typing assistance, a native widget, or nothing. */
   readonly kind: 'text' | 'number' | 'native' | 'none';
   /** Whether the value is a valid, complete match (see `onComplete`). */
@@ -76,7 +76,7 @@ export interface Binding {
   readonly filled: boolean;
   /** The value without the characters the pattern dictates; settable. */
   rawValue: string;
-  /** Removes all listeners and attributes valex added. */
+  /** Removes all listeners and attributes formaton added. */
   detach(): void;
 }
 
@@ -87,13 +87,13 @@ export const EMAIL_PATTERN =
 
 /** Types the browser renders as its own widget: no typing assistance possible. */
 const NATIVE_TYPES = new Set(['date', 'month', 'week', 'time', 'datetime-local']);
-/** Types whose text valex can edit. */
+/** Types whose text formaton can edit. */
 const TEXT_TYPES = new Set(['text', 'search', 'tel', 'url', 'email', 'password', 'textarea']);
 
 const bindings = new WeakMap<FieldElement, Binding>();
 
 /**
- * Characters valex appended to complete a field just before autoAdvance
+ * Characters formaton appended to complete a field just before autoAdvance
  * left it (the "M" of "9:30PM"). Typed into the next field right after, out
  * of habit, they are dropped instead of landing there.
  */
@@ -121,14 +121,14 @@ export function attachAll(
 }
 
 /** Prefix of the HTML attributes that set options per element. */
-export const ATTRIBUTE_PREFIX = 'data-valex-';
+export const ATTRIBUTE_PREFIX = 'data-formaton-';
 
 /**
  * Options set in the element's HTML, which win over the ones passed in:
- * data-valex-prefix="false", data-valex-animate="30",
- * data-valex-auto-advance, data-valex-edit-mode="shift",
- * data-valex-placeholder="mask", data-valex-mask-char="#",
- * data-valex-max-length, data-valex-pattern="..." (for a textarea).
+ * data-formaton-prefix="false", data-formaton-animate="30",
+ * data-formaton-auto-advance, data-formaton-edit-mode="shift",
+ * data-formaton-placeholder="mask", data-formaton-mask-char="#",
+ * data-formaton-max-length, data-formaton-pattern="..." (for a textarea).
  */
 export function attributeOptions(el: Element): AttachOptions {
   const out: AttachOptions = {};
@@ -155,10 +155,10 @@ export function attributeOptions(el: Element): AttachOptions {
 }
 
 /**
- * Attaches valex to an `<input>` or `<textarea>`. The pattern comes from
+ * Attaches formaton to an `<input>` or `<textarea>`. The pattern comes from
  * `options.pattern`, then the `pattern` attribute, then the type: `email`,
  * `number` with integer `min`/`max`, and the date and time types.
- * Attaching twice returns the existing binding. `data-valex-*` attributes
+ * Attaching twice returns the existing binding. `data-formaton-*` attributes
  * on the element override `options` (see `attributeOptions`).
  */
 export function attach(el: FieldElement, passed: AttachOptions = {}): Binding {
@@ -168,13 +168,13 @@ export function attach(el: FieldElement, passed: AttachOptions = {}): Binding {
 
   const type = el instanceof HTMLTextAreaElement ? 'textarea' : (el.type || 'text').toLowerCase();
   const pattern = options.pattern ?? el.getAttribute('pattern') ?? defaultPattern(el, type);
-  let v: Valex | null = null;
+  let v: Formaton | null = null;
   if (pattern !== null) {
     try {
       v = compile(pattern);
     } catch (e) {
       // Browsers ignore invalid patterns, and some valid ones we cannot model.
-      if (!(e instanceof ValexSyntaxError || e instanceof ValexUnsupportedError)) throw e;
+      if (!(e instanceof FormatonSyntaxError || e instanceof FormatonUnsupportedError)) throw e;
     }
   }
 
@@ -191,11 +191,11 @@ export function attach(el: FieldElement, passed: AttachOptions = {}): Binding {
 
   let filled = false;
   let complete = false;
-  /** Separators valex just inserted, ending at `at`, which the user may type over once. */
+  /** Separators formaton just inserted, ending at `at`, which the user may type over once. */
   let pending = { text: '', at: -1 };
   const binding: Binding = {
     element: el,
-    valex: kind === 'native' ? null : v,
+    formaton: kind === 'native' ? null : v,
     kind,
     get complete() {
       return complete;
@@ -375,7 +375,7 @@ export function attach(el: FieldElement, passed: AttachOptions = {}): Binding {
     const changed = el.value !== value;
     if (changed) el.value = value;
     // Without a selection API we only know roughly where an edit happened
-    // ("comm" + "m": which "m"?). If valex left the value as the browser made
+    // ("comm" + "m": which "m"?). If formaton left the value as the browser made
     // it, the browser's caret is right, so leave it alone.
     if (document.activeElement === el && (changed || selection() !== null)) {
       if (selectionEnd !== caret) {
@@ -399,7 +399,7 @@ export function attach(el: FieldElement, passed: AttachOptions = {}): Binding {
     return wasFilled ? 'overwrite' : 'shift';
   };
 
-  /** UTF-16 [start, end) of each character of `s`, and whether valex inserted it by itself. */
+  /** UTF-16 [start, end) of each character of `s`, and whether formaton inserted it by itself. */
   const charSpans = (s: string): Array<{ start: number; end: number; auto: boolean }> => {
     const auto = vx.autoChars(s);
     const out: Array<{ start: number; end: number; auto: boolean }> = [];
@@ -412,7 +412,7 @@ export function attach(el: FieldElement, passed: AttachOptions = {}): Binding {
     return out;
   };
 
-  /** Moves `caret` past separators valex inserts, so typing continues at the next choice. */
+  /** Moves `caret` past separators formaton inserts, so typing continues at the next choice. */
   const skipAuto = (s: string, caret: number): number => {
     for (const c of charSpans(s)) if (c.start === caret && c.auto) caret = c.end;
     return caret;
@@ -466,12 +466,12 @@ export function attach(el: FieldElement, passed: AttachOptions = {}): Binding {
     let result: string;
     let caret: number;
     let typedAtEnd = false;
-    /** Where characters valex appended at the end start, to type them out. */
+    /** Where characters formaton appended at the end start, to type them out. */
     let animateFrom = -1;
     if (inserted !== '') {
       const auto = pending.at === p && tailStart === p ? pending.text : '';
       pending = { text: '', at: -1 };
-      // Separators valex just put before the caret may be typed once more, out
+      // Separators formaton just put before the caret may be typed once more, out
       // of habit: ")" or ") " after "(212" became "(212) ", "-" after "2012"
       // became "2012-". Matched from their start, or ending at the caret
       // (" " alone); a "1" after "+1 (" or a second "-" is not a re-type.
@@ -531,7 +531,7 @@ export function attach(el: FieldElement, passed: AttachOptions = {}): Binding {
       typedAtEnd = true;
     } else if (tailStart > p) {
       pending = { text: '', at: -1 };
-      // Deleting only separators valex inserted would change nothing: take
+      // Deleting only separators formaton inserted would change nothing: take
       // the next chosen character with them, in the direction of the deletion.
       const spans = charSpans(old);
       const removed = spans.filter((c) => c.start >= p && c.end <= tailStart);
@@ -625,7 +625,7 @@ export function attach(el: FieldElement, passed: AttachOptions = {}): Binding {
   });
   // Moving the caret ends the chance to type over just-inserted separators.
   listen('keydown', (ev) => {
-    finish(); // the next key goes after everything valex is typing out
+    finish(); // the next key goes after everything formaton is typing out
     if (/^(Arrow|Home$|End$|Page)/.test(ev.key)) pending = { text: '', at: -1 };
   });
   listen('mousedown', () => {

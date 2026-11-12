@@ -1,9 +1,9 @@
-# valex
+# formaton
 
 Placeholders and typing help derived from the HTML `pattern` attribute.
 
 You write one regular expression in `pattern="…"`. The browser already uses it
-to validate the field. valex reads the same pattern and works out what the user
+to validate the field. formaton reads the same pattern and works out what the user
 can type next. It can then:
 
 - **insert characters the pattern forces**: `(212` becomes `(212) ` for
@@ -28,7 +28,7 @@ into an automaton, so `[a-z0-9.-]{1,64}@…` is as cheap as `\d{4}`.
 <input type="number" min="1" max="12">
 
 <script type="module">
-  import { attachAll } from 'valex';
+  import { attachAll } from 'formaton';
 
   attachAll(document, {
     autoAdvance: true,                         // "press Tab" once a field is filled
@@ -44,12 +44,12 @@ and returns a binding (`attachAll(root, options)` returns all the bindings that
 do something). The pattern comes from `options.pattern`, then the `pattern`
 attribute, then the type:
 
-| Field | What valex does |
+| Field | What formaton does |
 | --- | --- |
 | any text-like input with a pattern (`text`, `tel`, `search`, `url`, `password`), `<textarea>` with `options.pattern` | full typing help: separators, case, paste, backspace, editing in the middle |
 | `type="email"` | the email grammar from the HTML standard, as a pattern; never "filled", since an address can always grow |
 | `type="number"` with integer `min`/`max` (and `step` 1) | characters the range never uses (`-`, `e`, `.`, letters) are stopped before they get in; digits that cannot lead to a number in range are reverted; "filled" once no further digit fits (with `max="12"`, after `2` or `12`, not after `1`) |
-| `date`, `month`, `week`, `time`, `datetime-local` | the browser's own widget does the typing; valex only reports "filled" (not while a year is half typed). Chrome turns segments left at `00` into `01` on blur (`01/01/0001` is a valid date), so give the field a `min` |
+| `date`, `month`, `week`, `time`, `datetime-local` | the browser's own widget does the typing; formaton only reports "filled" (not while a year is half typed). Chrome turns segments left at `00` into `01` on blur (`01/01/0001` is a valid date), so give the field a `min` |
 | anything else | nothing (`binding.kind === 'none'`) |
 
 Options:
@@ -64,7 +64,7 @@ Options:
 - `onReject(text, binding)`: typed or pasted text that does not fit. This
   includes typing past the end. The text is not inserted.
 - `autoAdvance`: move focus to the next field in tab order once filled.
-  If valex itself typed the last characters (the `M` of `9:30PM` after you
+  If formaton itself typed the last characters (the `M` of `9:30PM` after you
   typed `p`), the same keys typed right after (within 1.5 s) are dropped
   instead of landing in the next field. This
   only happens if the caret is at the end, so finishing an edit in the middle
@@ -76,14 +76,14 @@ Options:
   along (what no longer fits is lost), `truncate` clears them. The default,
   `auto`, shifts while the field still has room and overwrites once it is
   filled. Deleting always pulls the rest back, except with `truncate`.
-- Separators valex inserts by itself stay on Backspace while the character
+- Separators formaton inserts by itself stay on Backspace while the character
   before them stays: `1QWS1-1` becomes `1QWS1-`, the next Backspace gives
   `1QWS`. Optional ones (the `-` of a ZIP+4 code) are the user's to type or
   delete like any other character.
 - `onFilled` (and `autoAdvance`) fire again when the user re-types the last
   character of a filled value, so correcting a field moves on just like
   filling it did.
-- `animate` (default true): characters valex adds at the end are typed out
+- `animate` (default true): characters formaton adds at the end are typed out
   one by one, 15 ms each and at most 200 ms in all, so the user sees them
   arrive. A number sets the milliseconds per character; `false` turns it off.
   It is off when the user prefers reduced motion. Any key, click or paste
@@ -97,15 +97,15 @@ Options:
   For lengths that vary (card numbers of several brands, IP addresses) a mask
   would mislead, so none is set. `maskChar` changes the `_`.
 - `maxLength` (default false): set `maxlength` from the pattern. It is off
-  because valex enforces the length itself, and at `maxlength` browsers
+  because formaton enforces the length itself, and at `maxlength` browsers
   swallow keystrokes (so `onReject` cannot fire) and truncate pastes before
-  valex can reformat them.
+  formaton can reformat them.
 
-Every option can also be set per field in the HTML, with `data-valex-*`
-attributes that win over the options passed in: `data-valex-prefix="false"`,
-`data-valex-animate="30"`, `data-valex-auto-advance`,
-`data-valex-edit-mode="shift"`, `data-valex-placeholder="mask"`,
-`data-valex-mask-char="#"`, `data-valex-max-length`, `data-valex-pattern`. Or
+Every option can also be set per field in the HTML, with `data-formaton-*`
+attributes that win over the options passed in: `data-formaton-prefix="false"`,
+`data-formaton-animate="30"`, `data-formaton-auto-advance`,
+`data-formaton-edit-mode="shift"`, `data-formaton-placeholder="mask"`,
+`data-formaton-mask-char="#"`, `data-formaton-max-length`, `data-formaton-pattern`. Or
 pass `attachAll` a function that returns each element's options:
 
 ```js
@@ -116,19 +116,19 @@ For example, crypto addresses are nearly always pasted, and a field that
 already shows `bc1` on focus can confuse people:
 
 ```html
-<input pattern="bc1[ac-hj-np-z02-9]{11,71}" data-valex-prefix="false">
+<input pattern="bc1[ac-hj-np-z02-9]{11,71}" data-formaton-prefix="false">
 ```
 
 The field stays empty on focus; typing `q` still gives `bc1q`, and pasting a
 full address works either way.
 
-A binding has `element`, `valex` (the compiled pattern), `kind`, `complete`,
+A binding has `element`, `formaton` (the compiled pattern), `kind`, `complete`,
 `filled`,
 a read/write `rawValue` (`2125551234`), and `detach()`.
 
 Notes:
 
-- valex sets `element.value` itself. That does not fire `input` events, and
+- formaton sets `element.value` itself. That does not fire `input` events, and
   in Chrome it clears the field's undo history. Frameworks that keep their
   own copy of the value (React's controlled inputs) need to read it back in
   `onFilled` or on `change`.
@@ -138,20 +138,20 @@ Notes:
 - Characters the pattern requires are added as soon as the value needs them,
   wherever the caret is: `(212` gives `(212) `, `2012` gives `2012-`, `Ja`
   gives `January ` when a year must follow.
-- Separators valex has just inserted can be typed once more, out of habit:
+- Separators formaton has just inserted can be typed once more, out of habit:
   `-` after `2012` (which became `2012-`), `)` or `) ` after `(212`, `+1 (`
   after focusing a field that starts with it. A second `-`, or a `1` after
   `+1 (` (area codes cannot start with 1), is rejected like any misfit.
   Moving the caret ends that chance. Separators ahead of the caret are
   stepped over (`12|:54` plus `:`).
 - `type="email"` fields have no caret API, and setting their value moves the
-  caret to the end. valex turns the field into a text field for an instant to
+  caret to the end. formaton turns the field into a text field for an instant to
   put the caret back.
 
 ## Engine
 
 ```js
-import { compile } from 'valex';
+import { compile } from 'formaton';
 
 const phone = compile(String.raw`\(\d{3}\) \d{3}-\d{4}`);
 
@@ -173,11 +173,11 @@ phone.maxValueLength();              // 10
 
 ## API
 
-`compile(pattern, { mode })` returns a `Valex`. `mode` is `'v'`, `'u'` or
+`compile(pattern, { mode })` returns a `Formaton`. `mode` is `'v'`, `'u'` or
 `'auto'` (default). Browsers compile `pattern` with the `v` flag, and `auto`
 does the same wherever the JS engine supports it. An invalid pattern throws
-`ValexSyntaxError`. A valid pattern that an automaton cannot model throws
-`ValexUnsupportedError`; leave such fields unassisted.
+`FormatonSyntaxError`. A valid pattern that an automaton cannot model throws
+`FormatonUnsupportedError`; leave such fields unassisted.
 
 All matching is full-string, as in the browser: `^(?:pattern)$`.
 
@@ -192,7 +192,7 @@ All matching is full-string, as in the browser: `^(?:pattern)$`.
 | `trimForced(value)` | `value` without trailing characters the pattern would insert by itself |
 | `example({ value, length, mask, random })` | a matching string, or `null` if none exists |
 | `mask(value, { char, length })` | `example()` with `mask: '_'`: `(212) ___-____` |
-| `autoChars(value)` | per character: would valex have inserted it by itself? |
+| `autoChars(value)` | per character: would formaton have inserted it by itself? |
 | `unformat(value, from?)` | the raw value: only the characters the user chose, e.g. `2125551234` |
 | `format(raw)` | `{ value, ok, complete }`: the inverse of `unformat()`, strict about its input |
 | `minLength()`, `maxLength()` | lengths in UTF-16 code units (as `maxlength` counts them); `Infinity` if unbounded |
@@ -257,7 +257,7 @@ make serve          # demo at http://localhost:8080/demo/
 make test           # engine tests
 make test-browser   # DOM binding, typed into real Chromium
 make build          # compile to dist/
-make pack           # build valex-<version>.tgz, as it would go to npm
+make pack           # build formaton-<version>.tgz, as it would go to npm
 make help           # everything else
 ```
 
@@ -275,9 +275,11 @@ npm run demo           # http://127.0.0.1:8080/demo/
 
 ## History
 
-`valex.js` was based on Alix Axel's [genex.js](https://github.com/alixaxel/genex.js)
-and embedded Roly Fentanes' [ret.js](https://github.com/fent/ret.js) tokenizer.
-This rewrite shares no code with either.
+formaton (form + automaton) began in 2014 as `valex.js` and its jQuery
+plugin `jquery-valium`. `valex.js` was based on Alix Axel's
+[genex.js](https://github.com/alixaxel/genex.js) and embedded Roly Fentanes'
+[ret.js](https://github.com/fent/ret.js) tokenizer. This rewrite shares no
+code with either.
 
 ## License
 

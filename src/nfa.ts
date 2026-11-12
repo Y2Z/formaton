@@ -1,5 +1,5 @@
 import type { CharSet } from './charset.js';
-import { ValexUnsupportedError } from './errors.js';
+import { FormatonUnsupportedError } from './errors.js';
 import type { Node } from './parser.js';
 
 /**
@@ -29,7 +29,7 @@ export const MAX_STATES = 200_000;
 export function buildNfa(ast: Node): Nfa {
   const states: NfaState[] = [];
   const add = (): number => {
-    if (states.length >= MAX_STATES) throw new ValexUnsupportedError('Pattern is too large');
+    if (states.length >= MAX_STATES) throw new FormatonUnsupportedError('Pattern is too large');
     states.push({ eps: [], bol: [], eol: [], chars: [] });
     return states.length - 1;
   };

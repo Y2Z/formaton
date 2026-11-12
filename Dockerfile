@@ -12,13 +12,13 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
     PATH=/src/y2z/node_modules/.bin:$PATH
 
 # Install packages into ./../node_modules, outside the source tree that gets
-# mounted over /src/y2z/valex (Node finds them by walking up)
-WORKDIR /src/y2z/valex/..
+# mounted over /src/y2z/formaton (Node finds them by walking up)
+WORKDIR /src/y2z/formaton/..
 COPY Prebuild.mk package.json package-lock.json* ./
 RUN make -f Prebuild.mk UPDATE_LOCK_FILE
 RUN make -f Prebuild.mk INSTALL_DEPS
 RUN make -f Prebuild.mk INSTALL_BROWSERS
 
-WORKDIR /src/y2z/valex
+WORKDIR /src/y2z/formaton
 
 CMD ["make", "SERVE"]

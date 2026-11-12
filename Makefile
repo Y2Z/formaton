@@ -11,7 +11,7 @@ else
     # .tgz) belong to you. Rootless podman already maps the container's root to you.
     DOCKER_USER ?= $(if $(filter docker,$(DOCKER)),--user $(shell id -u):$(shell id -g),)
 endif
-DOCKER_IMAGE_TAG ?= y2z/valex
+DOCKER_IMAGE_TAG ?= y2z/formaton
 PORT ?= 8080
 TTY ?= -it
 

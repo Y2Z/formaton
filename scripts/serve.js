@@ -20,4 +20,4 @@ createServer(async (req, res) => {
   } catch {
     res.writeHead(404).end('not found');
   }
-}).listen(port, host, () => console.log(`valex demo: http://${host === '0.0.0.0' ? 'localhost' : host}:${port}/demo/`));
+}).listen(port, host, () => console.log(`formaton demo: http://${host === '0.0.0.0' ? 'localhost' : host}:${port}/demo/`));

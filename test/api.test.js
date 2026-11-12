@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { CharSet, compile, ValexSyntaxError, ValexUnsupportedError } from '../dist/index.js';
+import { CharSet, compile, FormatonSyntaxError, FormatonUnsupportedError } from '../dist/index.js';
 
 test('CharSet operations', () => {
   const a = CharSet.fromRanges([
@@ -28,22 +28,22 @@ test('CharSet operations', () => {
   assert.equal(CharSet.of(65).single(), 65);
 });
 
-test('invalid patterns throw ValexSyntaxError', () => {
+test('invalid patterns throw FormatonSyntaxError', () => {
   for (const p of ['(', 'a{2,1}', '[z-a]', '*a', '\\', '[a-]']) {
-    assert.throws(() => compile(p, { mode: 'v' }), ValexSyntaxError, p);
+    assert.throws(() => compile(p, { mode: 'v' }), FormatonSyntaxError, p);
   }
 });
 
-test('patterns an automaton cannot model throw ValexUnsupportedError', () => {
+test('patterns an automaton cannot model throw FormatonUnsupportedError', () => {
   for (const p of ['(a)\\1', '(?<x>a)\\k<x>', '(?=a)a', '(?!a)b', '(?<=a)b', 'a\\bb', 'a{20000}', '\\p{RGI_Emoji}']) {
-    assert.throws(() => compile(p, { mode: 'v' }), ValexUnsupportedError, p);
+    assert.throws(() => compile(p, { mode: 'v' }), FormatonUnsupportedError, p);
   }
 });
 
 test('u mode follows the older class syntax', () => {
   const v = compile('[a-]{2}', { mode: 'u' });
   assert.ok(v.test('a-'));
-  assert.throws(() => compile('[a-]', { mode: 'v' }), ValexSyntaxError);
+  assert.throws(() => compile('[a-]', { mode: 'v' }), FormatonSyntaxError);
 });
 
 test('astral characters count as two UTF-16 units for lengths', () => {

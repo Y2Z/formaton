@@ -1,11 +1,11 @@
 import { CharSet, MAX_CODE_POINT } from './charset.js';
 import { Dfa, type DState, type Transition } from './dfa.js';
-import { ValexSyntaxError, ValexUnsupportedError } from './errors.js';
+import { FormatonSyntaxError, FormatonUnsupportedError } from './errors.js';
 import { buildNfa, type Nfa } from './nfa.js';
 import { parse, SPACE, type Mode } from './parser.js';
 import { longestPath, shortestPath, type Succ } from './paths.js';
 
-export { CharSet, ValexSyntaxError, ValexUnsupportedError };
+export { CharSet, FormatonSyntaxError, FormatonUnsupportedError };
 export type { Mode };
 
 export interface CompileOptions {
@@ -104,15 +104,15 @@ function pickChar(set: CharSet, random?: () => number): number {
 const units = (cp: number) => (cp > 0xffff ? 2 : 1);
 
 /** Compiles an HTML `pattern` attribute value. */
-export function compile(pattern: string, options: CompileOptions = {}): Valex {
-  return new Valex(pattern, options);
+export function compile(pattern: string, options: CompileOptions = {}): Formaton {
+  return new Formaton(pattern, options);
 }
 
 /**
  * A compiled pattern. Matching follows HTML semantics: the whole value must
  * match, as if the pattern were `^(?:pattern)$`.
  */
-export class Valex {
+export class Formaton {
   readonly pattern: string;
   readonly mode: Mode;
   private readonly nfa: Nfa;
@@ -127,7 +127,7 @@ export class Valex {
       try {
         new RegExp(pattern, mode);
       } catch (e) {
-        throw new ValexSyntaxError(`Invalid pattern /${pattern}/: ${(e as Error).message}`);
+        throw new FormatonSyntaxError(`Invalid pattern /${pattern}/: ${(e as Error).message}`);
       }
     }
     this.pattern = pattern;
@@ -227,7 +227,7 @@ export class Valex {
   }
 
   /**
-   * For each code point of `value`: would valex have inserted it by itself?
+   * For each code point of `value`: would formaton have inserted it by itself?
    * True for separators `forced()` adds (the ")" and " " of "(212) "), false
    * for what the user chose and for optional characters such as the "-" of
    * a ZIP+4 code, which only the user can decide to add. Characters after the
@@ -581,7 +581,7 @@ export class Valex {
         for (const { next } of this.dfa.transitions(list[i])) {
           if (seen.has(next)) continue;
           if (list.length >= MAX_EXPLORE_STATES) {
-            throw new ValexUnsupportedError(`Pattern is too complex to measure (/${this.pattern}/)`);
+            throw new FormatonUnsupportedError(`Pattern is too complex to measure (/${this.pattern}/)`);
           }
           seen.add(next);
           list.push(next);
