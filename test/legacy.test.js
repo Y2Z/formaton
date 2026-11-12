@@ -112,7 +112,7 @@ test('email: compiles without the old 9999-string cap', () => {
   assert.equal(v.maxLength(), 47);
 });
 
-test('the case valex 0.1.3 failed: [A-Za-z0-9_]{1,15}', () => {
+test('the case formaton 0.1.3 failed: [A-Za-z0-9_]{1,15}', () => {
   const v = compile('[A-Za-z0-9_]{1,15}');
   assert.equal(v.minLength(), 1);
   assert.equal(v.maxLength(), 15);
@@ -184,7 +184,7 @@ test('fix() keeps input that already fits, even if another reading completes', (
   assert.equal(intl.fix('1212555123').value, '+1 1212555123'); // still needs a reading
 });
 
-test('autoChars(): what valex would have inserted itself', () => {
+test('autoChars(): what formaton would have inserted itself', () => {
   assert.deepEqual(compile(ZIP).autoChars('12345-6'), [false, false, false, false, false, false, false]);
   const key = compile(String.raw`[A-Z0-9]{5}(-[A-Z0-9]{5}){4}`);
   assert.deepEqual(key.autoChars('1QWS1-1'), [false, false, false, false, false, true, false]);

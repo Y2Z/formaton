@@ -77,7 +77,7 @@ test('typing a phone number inserts separators, fires onFilled and advances', as
 
 test('typed separators are accepted where they belong, others rejected', async () => {
   await page.focus('#phone');
-  // The user types ") " although valex already inserted it.
+  // The user types ") " although formaton already inserted it.
   await type('212) 555-');
   assert.equal(await value('phone'), '(212) 555-');
   await type('x');
@@ -96,7 +96,7 @@ test('typing past the end is rejected', async () => {
   assert.deepEqual(await events(), [['reject', 'phone', '9']]);
 });
 
-test('backspace keeps separators valex would add back, and removes them with the digit before', async () => {
+test('backspace keeps separators formaton would add back, and removes them with the digit before', async () => {
   await page.focus('#phone');
   await type('2125');
   assert.equal(await value('phone'), '(212) 5');
@@ -477,7 +477,7 @@ test('fuzz: Backspace and Delete anywhere remove one chosen character, caret in 
         const key = rnd() < 0.7 ? 'Backspace' : 'Delete';
         await page.keyboard.press(key);
         const [after, at] = await page.$eval('#fuzz', (el) => [el.value, el.selectionStart]);
-        // Model: the user's characters (not separators valex inserted), minus the one the key removes.
+        // Model: the user's characters (not separators formaton inserted), minus the one the key removes.
         const auto = v.autoChars(before);
         const free = [...before].map((_, i) => i).filter((i) => !auto[i]);
         const k = free.filter((i) => i < c).length - (key === 'Backspace' ? 1 : 0);
@@ -540,7 +540,7 @@ test('a completed word gets the separator the next part needs', async () => {
 });
 test('a key re-typing what the last field auto-completed does not land in the next one', async () => {
   await page.focus('#t12');
-  await type('930p'); // valex adds the "M", the value is complete, focus moves on
+  await type('930p'); // formaton adds the "M", the value is complete, focus moves on
   assert.equal(await value('t12'), '9:30PM');
   assert.equal(await active(), 'word');
   await type('m'); // habit: the "M" of "PM"
@@ -621,7 +621,7 @@ test('animation: typing on never waits for it, or loses anything', async () => {
 
 const ADDRESS = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq';
 
-test('data-valex-prefix="false": nothing on focus, typing and pasting still work', async () => {
+test('data-formaton-prefix="false": nothing on focus, typing and pasting still work', async () => {
   await page.focus('#btc');
   assert.equal(await value('btc'), '');
   await type('q'); // the "bc1" comes with the first character
@@ -644,8 +644,8 @@ test('attributeOptions() and attachAll() with per-element options', async () => 
     const { attachAll, attributeOptions } = await import('/dist/index.js');
     const box = document.createElement('div');
     box.innerHTML = `
-      <input id="o1" pattern="\\d{3}-\\d{2}" data-valex-prefix="false" data-valex-animate="0"
-             data-valex-auto-advance data-valex-edit-mode="truncate" data-valex-placeholder="false">
+      <input id="o1" pattern="\\d{3}-\\d{2}" data-formaton-prefix="false" data-formaton-animate="0"
+             data-formaton-auto-advance data-formaton-edit-mode="truncate" data-formaton-placeholder="false">
       <input id="o2" pattern="\\+1 \\d{3}">
       <input id="o3" pattern="\\+1 \\d{3}">`;
     document.body.append(box);

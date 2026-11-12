@@ -1,5 +1,5 @@
 {
-  "name": "valex",
+  "name": "formaton",
   "version": "0.2.0-dev",
   "description": "Placeholders and typing assistance derived from the HTML pattern attribute",
   "type": "module",

@@ -1,5 +1,5 @@
 import { CharSet, MAX_CODE_POINT } from './charset.js';
-import { ValexSyntaxError, ValexUnsupportedError } from './errors.js';
+import { FormatonSyntaxError, FormatonUnsupportedError } from './errors.js';
 
 /**
  * Regex syntax mode. Browsers compile the `pattern` attribute with the `v`
@@ -71,7 +71,7 @@ function propertySet(body: string, pattern: string): CharSet {
     re = new RegExp(`^\\p{${body}}$`, 'u');
   } catch {
     // Either invalid, or a v-only "property of strings" such as \p{RGI_Emoji}.
-    throw new ValexUnsupportedError(`Property escape \\p{${body}} is not supported (/${pattern}/)`);
+    throw new FormatonUnsupportedError(`Property escape \\p{${body}} is not supported (/${pattern}/)`);
   }
   const ranges: Array<[number, number]> = [];
   let runStart = -1;
@@ -148,11 +148,11 @@ class Parser {
   }
 
   private fail(message: string): never {
-    throw new ValexSyntaxError(`${message} at position ${this.pos} in /${this.src}/`);
+    throw new FormatonSyntaxError(`${message} at position ${this.pos} in /${this.src}/`);
   }
 
   private unsupported(what: string): never {
-    throw new ValexUnsupportedError(`${what} is not supported (/${this.src}/)`);
+    throw new FormatonUnsupportedError(`${what} is not supported (/${this.src}/)`);
   }
 
   // ---- structure ------------------------------------------------------------

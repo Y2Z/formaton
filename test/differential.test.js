@@ -1,4 +1,4 @@
-// Compares valex with the JS engine's own regex matcher on many strings.
+// Compares formaton with the JS engine's own regex matcher on many strings.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { compile } from '../dist/index.js';

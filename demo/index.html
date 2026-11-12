@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>valex demo</title>
+<title>formaton demo</title>
 <style>
   body { font: 16px/1.5 system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
   /* Fields on the left, events on the right; stacked on narrow screens. */
@@ -33,10 +33,10 @@
 </style>
 </head>
 <body>
-<h1>valex</h1>
+<h1>formaton</h1>
 <p>Every field below is plain HTML with a <code>pattern</code> attribute (or a type).
 Fields turn green once valid, and move focus on by themselves once nothing more can be typed. Under each name is something to type:
-digits only, lowercase, without separators, to see what valex adds and fixes.</p>
+digits only, lowercase, without separators, to see what formaton adds and fixes.</p>
 <main class="layout">
 <form onsubmit="return false">
   <fieldset>
@@ -85,9 +85,9 @@ digits only, lowercase, without separators, to see what valex adds and fixes.</p
     <label><span class="name">MAC address<small>try 001a2b3c4d5e</small></span><input pattern="[0-9A-F]{2}(:[0-9A-F]{2}){5}"></label>
   </fieldset>
   <fieldset>
-    <legend>Crypto <small style="font-weight:normal;color:#777">(usually pasted, so no prefix on focus: <code>data-valex-prefix="false"</code>)</small></legend>
-    <label><span class="name">Ethereum address<small>try de0b295669a9fd93d5f28d9ec85e40f4cb697bae</small></span><input pattern="0x[0-9a-fA-F]{40}" data-valex-prefix="false"></label>
-    <label><span class="name">Bitcoin address (bech32)<small>try qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq</small></span><input pattern="bc1[ac-hj-np-z02-9]{11,71}" data-valex-prefix="false"></label>
+    <legend>Crypto <small style="font-weight:normal;color:#777">(usually pasted, so no prefix on focus: <code>data-formaton-prefix="false"</code>)</small></legend>
+    <label><span class="name">Ethereum address<small>try de0b295669a9fd93d5f28d9ec85e40f4cb697bae</small></span><input pattern="0x[0-9a-fA-F]{40}" data-formaton-prefix="false"></label>
+    <label><span class="name">Bitcoin address (bech32)<small>try qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq</small></span><input pattern="bc1[ac-hj-np-z02-9]{11,71}" data-formaton-prefix="false"></label>
   </fieldset>
   <fieldset>
     <legend>Numbers</legend>
@@ -116,7 +116,7 @@ digits only, lowercase, without separators, to see what valex adds and fixes.</p
     autoAdvance: true,
     onComplete(value, b) {
       // Valid, but more may follow (ZIP+4, a 4-digit CVV): green, no jump.
-      if (b.valex?.allowedNext(value)?.isEmpty === false) log(b, `complete ${JSON.stringify(value)}  (may grow)`);
+      if (b.formaton?.allowedNext(value)?.isEmpty === false) log(b, `complete ${JSON.stringify(value)}  (may grow)`);
     },
     onFilled(value, b) {
       log(b, `filled   ${JSON.stringify(value)}  raw ${JSON.stringify(b.rawValue)}`);
@@ -132,7 +132,7 @@ digits only, lowercase, without separators, to see what valex adds and fixes.</p
   for (const b of bindings) {
     // The red border lasts as long as the shake.
     b.element.addEventListener('animationend', () => b.element.classList.remove('reject'));
-    // Green while the value is valid and complete. valex's own listener runs
+    // Green while the value is valid and complete. formaton's own listener runs
     // first, so b.complete is current. Focus moves on only once b.filled.
     const update = () => b.element.classList.toggle('ok', b.complete);
     b.element.addEventListener('input', update);
