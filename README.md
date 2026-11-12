@@ -16,9 +16,6 @@ can type next. It can then:
   `(000) 000-0000`, including ghost text after a partial value: `(212) ___-____`
 - **compute min/max length**, for `maxlength`
 
-This is the successor to `valex.js` and `jquery-valium` (2014). Those listed
-every matching string, which could not scale. This version compiles the pattern
-into an automaton, so `[a-z0-9.-]{1,64}@…` is as cheap as `\d{4}`.
 
 ## On a page
 
@@ -148,6 +145,7 @@ Notes:
   caret to the end. formaton turns the field into a text field for an instant to
   put the caret back.
 
+
 ## Engine
 
 ```js
@@ -170,6 +168,7 @@ phone.format('2125551234').value;    // "(212) 555-1234"
 phone.minValueLength();              // 10
 phone.maxValueLength();              // 10
 ```
+
 
 ## API
 
@@ -232,6 +231,7 @@ the `-` of `\d{3}-?`, the raw value cannot record whether it was there, and
 - `mask` replaces every character the user would have to choose.
 - `random` supplies a random-number function for varied sample values.
 
+
 ## Supported syntax
 
 Everything an automaton can model:
@@ -247,6 +247,7 @@ Everything an automaton can model:
 
 Not supported: backreferences, lookahead and lookbehind, `\b` / `\B`, modifier
 groups `(?i:…)`, and properties of strings (`\p{RGI_Emoji}`).
+
 
 ## Development
 
@@ -273,14 +274,6 @@ npm run test:browser   # needs Playwright's Chromium: npx playwright install chr
 npm run demo           # http://127.0.0.1:8080/demo/
 ```
 
-## History
-
-formaton (form + automaton) began in 2014 as `valex.js` and its jQuery
-plugin `jquery-valium`. `valex.js` was based on Alix Axel's
-[genex.js](https://github.com/alixaxel/genex.js) and embedded Roly Fentanes'
-[ret.js](https://github.com/fent/ret.js) tokenizer. This rewrite shares no
-code with either.
-
 ## License
 
-[0BSD](LICENSE): use it for anything, no attribution required.
+0BSD
